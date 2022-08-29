@@ -34,20 +34,21 @@ class DataManager:
         self.database_connection.batch_execute(fn=self.insert_item_record, rows=rows)
 
     def update_database(self):
-        trade_data = self.check_db()
+        try:
+            trade_data = self.check_db()
+        except:
+            trade_data = None
         if trade_data is not None:
             print("Updating price data...")
             argv = ["trade.py", "import", "--merge", "-P", "eddblink", "-O", "skipvend"]
         else:
-            # Update all.
             print("Updating all data. ")
-            argv = ["trade.py", "import", "-P", "eddblink"]
+            argv = ["trade.py", "import", "-P", "eddblink", "-O", "skipvend"]
         cmdenv = commands.CommandIndex().parse(argv)
         tdb = tradedb.TradeDB(cmdenv, load=cmdenv.wantsTradeDB)
         try:
             results = cmdenv.run(tdb)
         finally:
-            # always close tdb
             tdb.close()
         if results:
             results.render()
@@ -127,11 +128,11 @@ class DataManager:
 
 
 if __name__ == '__main__':
-    DataManager()
+    # DataManager()
     # DataManager().database_connection.execute_query(""" DELETE FROM ItemHistory WHERE 1 """)
     DataManager().update_database()
     start_time = time.time()
-    DataManager().load_trade_dangerous_items_prices()
+    # DataManager().load_trade_dangerous_items_prices()
 
     #for can in DataManager().find_trade_candidates():
     #    print(can[0].dbname, can[1])

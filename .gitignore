@@ -1,6 +1,7 @@
 data
 mydatabase.sqlite
-
+tradedangerous
+.idea
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
