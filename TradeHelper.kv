@@ -1,0 +1,242 @@
+#:import Clipboard kivy.core.clipboard.Clipboard
+#:import tracker tracker
+
+<Widget>:
+    font_name: 'resources/RobotoMono-Regular.ttf'
+    color: [1, 0.5, 0, 1]
+
+<Label>:
+    shorten: True
+    shorten_from: "right"
+
+<PaddedLayout>
+    padding: [10, 10, 10, 10]
+    spacing: 20
+
+<TextInput>:
+    font_size: 25
+
+<Button>:
+    background_color: [1, 0.5, 0, 0.5]
+
+<ThemedPopup>:
+    title_color: [1, 0.5, 0, 1]
+    separator_color: [1, 0.5, 0, 0]
+    background_color: [0.1, 0.01, 0, 0.5]
+    background: "resources/dark.png"
+
+<BorderTextInput>:
+    background_color: [0.1, 0.1, 0.1, 0.5]
+    color: [1, 0.5, 0, 1]
+    foreground_color: [1, 0.5, 0, 1]
+
+<BorderWidget>
+    canvas.before:
+        Color:
+            rgba: root.border_color
+        Line:
+            width: root.border_size
+            rectangle: self.x, self.y, self.width, self.height
+
+<LeftAlign>:
+    text_size: (self.width-root.offset, None)
+
+<CopyButton>:
+    source: "resources/copy.png"
+    allow_stretch: True
+
+<CopyLabel>
+    orientation: 'horizontal'
+    width: 150
+    LeftAlignLabel:
+        text: root.label_text
+        font_size: self.parent.font_size
+    CopyButton:
+        border_color: [0.5, 0.25, 0, 0.5]
+        border_size: 0.5
+        id: "copy_button"
+        size_hint_x: None
+        width: self.height
+        on_press:
+            Clipboard.copy(root.label_text)
+
+<TopTradesView>:
+    orientation: 'vertical'
+    ScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+        GridLayout:
+            cols: 1
+            size_hint: 1, None
+            id: body
+            size_hint_y: None
+            height: self.minimum_height
+
+<TopTradesRow>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: 28
+    font_size: 17
+    border_color: [0.5, 0.25, 0, 0.5]
+    border_size: 0.5
+    CopyLabel:
+        id: item_label
+        label_text: str(root.item.dbname)
+        font_size: root.font_size
+    LeftAlignLabel:
+        id: max_profit_label
+        text: f"{str(root.max_profit) : <7} CR"
+        font_size: root.font_size
+        size_hint_x: None
+        width: 150
+    BorderButton:
+        size_hint_x: None
+        width: root.height
+        text: "o"
+        on_press:
+            app.root.fc_trade_tracker_for(str(root.item.dbname))
+
+<CommodityTrackerView>:
+    orientation: 'vertical'
+#    buyers_section: buyers_section.__self__
+#    sellers_section: sellers_section.__self__
+    ScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+
+        GridLayout:
+            cols: 1
+            size_hint: 1, None
+            id: body
+            size_hint_y: None
+            height: self.minimum_height
+            LeftAlignBorderLabel:
+                size_hint_y: None
+                height: 28 + 10
+                text: "Summary:"
+            TrackerSummaryRow:
+                id: summary_row
+            LeftAlignBorderLabel:
+                size_hint_y: None
+                height: 28 + 10
+                text: "Buyers:"
+            GridLayout:
+                cols: 1
+                id: buyers_section
+                size_hint_y: None
+                height: self.minimum_height
+                #minimum_height: 100
+            LeftAlignBorderLabel:
+                size_hint_y: None
+                height: 28 + 10
+                text: "Sellers:"
+            GridLayout:
+                cols: 1
+                id: sellers_section
+                size_hint_y: None
+                height: self.minimum_height
+                #minimum_height: 100
+
+
+
+<TrackerSummaryRow>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: 80
+    font_size: 17
+    LeftAlignLabel:
+        id: best_buy_label
+        text: "Buy: " + str(root.best_buy) + " CR"
+        font_size: root.font_size
+        size_hint_x: 0.3
+    LeftAlignLabel:
+        id: best_sell_label
+        text: "Sell: " + str(root.best_sell) + " CR"
+        font_size: root.font_size
+        size_hint_x: 0.3
+    LeftAlignLabel:
+        id: max_profit_label
+        text: "Profit: " + str(root.max_profit) + " CR"
+        font_size: root.font_size
+        size_hint_x: 0.3
+
+
+<TrackerRow>:
+    orientation: 'horizontal'
+    border_color: [0.5, 0.25, 0, 0.5]
+    border_size: 0.5
+    size_hint_y: None
+    height: 28
+    BoxLayout:
+        # TODO: Icons?
+        orientation: 'horizontal'
+        size_hint_x: None
+        width: 30
+    CopyLabel: # System name
+        label_text: root.row.station.system.dbname
+        font_size: root.font_size
+        size_hint_max_x: 160
+    LeftAlignLabel: # System distance
+        text: f"{str(int(root.row.dist)) : <3}" + " Ly"
+        font_size: root.font_size
+        size_hint_max_x: 55
+    BorderLabel: # Landing Pad
+        text: tracker.get_station_type(root.row.station)
+        border_color: [0.5, 0.25, 0, 0.5]
+        border_size: 0.5
+        font_size: root.font_size+2
+        size_hint_x: None
+        width: 40
+    CopyLabel: # Station
+        label_text: root.row.station.dbname
+        font_size: root.font_size
+        #size_hint_max_x: 190
+    LeftAlignLabel:
+        id: price_label
+        text: f"{str(root.row.price) : <7}" + " CR"
+        font_size: root.font_size
+        size_hint_max_x: 90
+    LeftAlignLabel:
+        id: units_label
+        text: f"{str(root.row.units) if root.mode == 'buy' else str(root.row.demand) : <7}" + " U"
+        font_size: root.font_size
+        size_hint_max_x: 85
+
+<Panel>:
+    orientation: 'vertical'
+    size_hint_max_x: 700
+    BorderBoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: None
+        height: 50
+        LeftAlignLabel:
+            offset: 20
+            id: title_label
+            text: "This is the title."
+        BorderButton:
+            id: close_button
+            text: "<"
+            size_hint_x: None
+            width: self.height
+            on_press:
+                root.move_left()
+        BorderButton:
+            id: close_button
+            text: ">"
+            size_hint_x: None
+            width: self.height
+            on_press:
+                root.move_right()
+        BorderButton:
+            id: close_button
+            text: "X"
+            size_hint_x: None
+            width: self.height
+            on_press:
+                root.close()
+    BoxLayout:
+        id: body
+
+
+
+
